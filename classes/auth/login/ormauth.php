@@ -234,7 +234,6 @@ class Auth_Login_Ormauth extends \Auth_Login_Driver
 		// check if we already have an account with this email address or username
 		$duplicate = \Model\Auth_User::query()
 			->select(\Config::get('ormauth.table_columns', array()))
-			->where('username', '=', $username)
 			->or_where('email', '=', $email)
 			->get_one();
 
@@ -242,14 +241,7 @@ class Auth_Login_Ormauth extends \Auth_Login_Driver
 		if ($duplicate)
 		{
 			// bail out with an exception
-			if (strtolower($email) == strtolower($duplicate->email))
-			{
-				throw new \SimpleUserUpdateException('Email address already exists', 2);
-			}
-			else
-			{
-				throw new \SimpleUserUpdateException('Username already exists', 3);
-			}
+			throw new \SimpleUserUpdateException('Email address already exists', 2);
 		}
 
 		// do we have a logged-in user?
@@ -287,6 +279,7 @@ class Auth_Login_Ormauth extends \Auth_Login_Driver
 		catch (\Exception $e)
 		{
 			$result = false;
+			\Log::error($e->getMessage());
 		}
 
 		// and the id of the created user, or false if creation failed
